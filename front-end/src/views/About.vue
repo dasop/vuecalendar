@@ -66,9 +66,9 @@
               <v-list-item @click="type = 'month'">
                 <v-list-item-title>Month</v-list-item-title>
               </v-list-item>
-              <!-- <v-list-item @click="type = '4day'">
+              <v-list-item @click="type = '4day'">
                 <v-list-item-title>4 days</v-list-item-title>
-              </v-list-item> -->
+              </v-list-item>
             </v-list>
           </v-menu>
         </v-toolbar>
@@ -83,7 +83,7 @@
           :type="type"
           @click:event="showEvent"
           @click:more="viewDay"
-          @click:date="viewDay"
+          @click:date="addEvent"
           @change="updateRange"
         ></v-calendar>
         <v-menu
@@ -127,6 +127,46 @@
             </v-card-actions>
           </v-card>
         </v-menu>
+        <v-dialog max-width="600px" v-model="popup">
+          <v-card>
+            <v-card-title>
+              <h2> Add a New Event</h2>
+            </v-card-title>
+            <v-card-text>
+              <v-form calss = "px-3" ref="form">
+                <v-text-field label = "Title" v-model = "title" prepend-icon = "mdi-folder" :rules="inputRules"></v-text-field>
+                <v-textarea label = "Information" v-model = "content" prepend-icon="mdi-pencil" :rules="inputRules"></v-textarea>
+                <v-row>
+                  <v-col cols="6" class="pb-0">
+                    <v-menu>
+                      <template v-slot:activator="{on}">
+                        <v-text-field slot="activator" label="start date"
+                          readonly
+                          prepend-icon="mdi-calendar-month"
+                          v-on="on"
+                          :value="startDate"></v-text-field>                      
+                      </template>
+                      <v-date-picker v-model="startDate"></v-date-picker>
+                    </v-menu>
+                  </v-col>
+                  <v-col cols="6" class="pb-0">
+                    <v-menu>
+                      <template v-slot:activator="{on}">
+                        <v-text-field slot="activator" label="end date"
+                          readonly
+                          prepend-icon="mdi-calendar-month"
+                          v-on="on"
+                          :value="endDate"></v-text-field>                      
+                      </template>
+                      <v-date-picker v-model = "endDate" :allowed-dates="allowedDates"></v-date-picker>
+                    </v-menu>
+                  </v-col>
+                </v-row>
+                <v-btn text class = "success" mx-0 mt-3 @click = "submit">Add event</v-btn>
+              </v-form>
+            </v-card-text>
+          </v-card>>
+        </v-dialog>
       </v-sheet>
     </v-col>
   </v-row>
@@ -149,6 +189,14 @@
       events: [],
       colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'grey darken-1'],
       names: ['Meeting', 'Holiday', 'PTO', 'Travel', 'Event', 'Birthday', 'Conference', 'Party'],
+      popup: false,
+      title: '',
+      content: '',
+      startDate: '',
+      endDate: '',
+      inputRules:[
+        v => v.length >= 3 || 'Minimun length is 3 characters'
+      ]
     }),
     mounted () {
       this.$refs.calendar.checkChange()
@@ -157,6 +205,10 @@
       viewDay ({ date }) {
         this.focus = date
         this.type = 'day'
+      },
+      addEvent({date}){
+        this.popup = true
+        this.startDate = date
       },
       getEventColor (event) {
         return event.color
@@ -217,6 +269,25 @@
       rnd (a, b) {
         return Math.floor((b - a + 1) * Math.random()) + a
       },
+      submit(){
+        if(this.$refs.form.validate()){
+          console.log(this.title, this.content)
+          // const event = {
+          //   title : this.title,
+          //   details : this.content,
+          //   start : this.startDate,
+          //   end : this.endDate,
+          //   name : 'test',
+          //   team : '결제플랫폼팀'            
+          // }
+        }
+      },
+      allowedDates(val) {
+        let endDate = val.split('-').reduce((a, b) => a + b);
+        let startDate = this.startDate.split('-').reduce((a, b) => a + b);
+        return endDate >= startDate;
+      }
     },
   }
 </script>
+

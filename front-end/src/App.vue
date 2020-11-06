@@ -1,20 +1,15 @@
 <template>
   <v-app>
     <v-main>
-      <Calendars/>
+      <router-view></router-view>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import Calendars from './components/Calendars';
 
 export default {
   name: 'App',
-
-  components: {
-    Calendars,
-  },
 
   data: () => ({
     //
